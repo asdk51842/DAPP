@@ -15,6 +15,7 @@ contract Bank {
 
     event mintEvent(address indexed toWho, uint256 value, uint256 timestamp);
     event BuyEvent(address indexed from, uint256 value, uint256 timestamp);
+    event SellEvent(address indexed from, uint256 value, uint256 timestamp);
 
 
 	// 建構子
@@ -64,14 +65,22 @@ contract Bank {
 
     // 買 NCCU Coin
     function buy(uint256 amounts) public {
-        uint256 nccuValue = amounts;// 1 nccu coin = 1 wei
-
+        uint256 nccuValue = amounts;// 1 : 1
         //require(balances[msg.sender] >= nccuValue);
-
         balances[msg.sender] -= nccuValue;
         nccuBalances[msg.sender] += nccuValue;
 
         emit BuyEvent(msg.sender, nccuValue, now);
+    }
+
+    // 賣NCCU Coin
+    function sell(uint256 amounts) public {
+        uint256 nccuValue = amounts;// 1 : 1
+        //require(nccuBalances[msg.sender] >= nccuValue);
+        nccuBalances[msg.sender] -= nccuValue;
+        balances[msg.sender] += nccuValue;
+
+        emit SellEvent(msg.sender, nccuValue, now);
     }
 
 	// 檢查銀行帳戶餘額

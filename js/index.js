@@ -33,6 +33,9 @@ let mint = $('#mint')
 //buy
 let buyAmount = $('#buyAmount')
 let buyButton = $('#buyButton')
+//sell
+let sellAmount = $('#sellAmount')
+let sellButton = $('#sellButton')
 
 // 載入使用者至 select tag
 web3.eth.getAccounts().then((accounts) => {
@@ -212,6 +215,31 @@ buyButton.on('click', function () {
         doneTransactionStatus()
     })
 })
+// 當按下賣幣按鍵時
+sellButton.on('click', function () {
+    // 更新介面
+    waitTransactionStatus()
+
+    // sell 本身只有一個 args，而 { from: account, gas: ...  } 為 tx object
+    bank.methods.sell(parseInt(sellAmount.val(), 10)).send({
+        from: whoami.val(),
+        gas: 4600000
+    }).on('receipt', function (receipt) {
+        console.log(receipt)
+        log(receipt.events.SellEvent.returnValues, '賣出成功')
+
+        // 觸發更新帳戶資料
+        whoamiButton.trigger('click')
+
+        // 更新介面
+        doneTransactionStatus()
+    }).on('error', function (err) {
+        log(err.toString())
+        // 更新介面
+        doneTransactionStatus()
+    })
+})
+
 function loadBank(address) {
 	if (!(address === undefined || address === null || address === '')) {
 		bank = new web3.eth.Contract(bankAbi, address)
