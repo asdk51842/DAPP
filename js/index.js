@@ -36,6 +36,10 @@ let buyButton = $('#buyButton')
 //sell
 let sellAmount = $('#sellAmount')
 let sellButton = $('#sellButton')
+//定存
+let CDAmounts = $('#CDAmounts')
+let CDYears = $('#CDYears')
+let CDButton = $('#CDButton')
 
 // 載入使用者至 select tag
 web3.eth.getAccounts().then((accounts) => {
@@ -238,6 +242,26 @@ sellButton.on('click', function () {
         // 更新介面
         doneTransactionStatus()
     })
+})
+
+// 當按下定存時
+CDButton.on('click', function () {
+    // 更新介面
+    waitTransactionStatus()
+    
+    bank.methods.certificate(parseInt(CDAmounts.val(), 10), parseInt(CDYears.val(), 10)).send({
+        from: whoami.val(),
+        gas: 4600000
+    }).on('receipt', function (receipt) {
+        console.log(receipt)
+        log(receipt.events.CDEvent.returnValues, '完成定存')
+
+        // 觸發更新帳戶資料
+        whoamiButton.trigger('click')
+
+        // 更新介面
+        doneTransactionStatus()
+    }).on('error', console.error)
 })
 
 function loadBank(address) {

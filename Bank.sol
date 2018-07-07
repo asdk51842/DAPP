@@ -7,6 +7,10 @@ contract Bank {
 	// 儲存所有會員的餘額
     mapping (address => uint256) private balances;
     mapping (address => uint256) private nccuBalances;
+    // 定存金額
+    mapping (address => uint256) private certificateDeposit;
+    // 定存期數
+    mapping (address => uint256) private Year;
 
 	// 事件們，用於通知前端 web3.js
     event DepositEvent(address indexed from, uint256 value, uint256 timestamp);
@@ -16,6 +20,7 @@ contract Bank {
     event mintEvent(address indexed toWho, uint256 value, uint256 timestamp);
     event BuyEvent(address indexed from, uint256 value, uint256 timestamp);
     event SellEvent(address indexed from, uint256 value, uint256 timestamp);
+    event CDEvent(address indexed from, uint256 value, uint256 year, uint256 timestamp);
 
 
 	// 建構子
@@ -83,6 +88,16 @@ contract Bank {
         emit SellEvent(msg.sender, nccuValue, now);
     }
 
+    // 定存
+    function certificate(uint256 amounts, uint256 year) public {
+        require(nccuBalances[msg.sender] >= amounts);
+
+        nccuBalances[msg.sender] -= amounts;
+        certificateDeposit[msg.sender] += amounts;
+        Year[msg.sender] = year;
+        emit CDEvent(msg.sender, amounts, Year[msg.sender], now);
+    }
+
 	// 檢查銀行帳戶餘額
     function checkBankBalance() public view returns (uint256) {
         return balances[msg.sender];
@@ -95,5 +110,14 @@ contract Bank {
     // 檢查nccu coin餘額
     function checkNCCUBalance() public view returns (uint256) {
         return nccuBalances[msg.sender];
+    }
+    // 檢查定存額度
+    function checkCDBalance() public view returns (uint256) {
+        return certificateDeposit[msg.sender];
+    }
+    
+    // 檢查定存年份
+    function checkYear() public view returns (uint256) {
+        return Year[msg.sender];
     }
 }
