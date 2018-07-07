@@ -26,10 +26,10 @@ let transferEtherValue = $('#transferEtherValue')
 let transferButton = $('#transferButton')
 let logger = $('#logger')
 
+//let nccuBalance = $('#nccuBalance')
 let mintAccount = $('#mintAccount')
 let mintNumber = $('#mintNumber')
 let mint = $('#mint')
-
 
 // 載入使用者至 select tag
 web3.eth.getAccounts().then((accounts) => {
@@ -53,6 +53,24 @@ deployNewContractButton.on('click', function () {
 whoamiButton.on('click', async function () {
 	// 先取得 etherBalance
 	let ethBalance = await web3.eth.getBalance(whoami.val())
+    
+    // 再取得 nccu balance
+    bank.methods.checkNCCUBalance().call({
+		from: whoami.val()
+	}).then(function (nccuBalance) {
+		// 更新活動紀錄
+		log({
+			address: whoami.val(),
+			ethBalance: ethBalance,
+			//bankBalance: bankBalance
+			nccuBalance: nccuBalance
+		})
+		log('更新帳戶資料')
+
+		$('#ethBalance').text('以太帳戶餘額 (wei): ' + ethBalance)
+		//$('#bankBalance').text('銀行合約餘額 (wei): ' + bankBalance)
+		$('#nccuBalance').text('NCCU Coin: ' + nccuBalance)
+	})
 
 	// 再取得 bank balance
 	// { from: account } 為 tx object
@@ -64,11 +82,13 @@ whoamiButton.on('click', async function () {
 			address: whoami.val(),
 			ethBalance: ethBalance,
 			bankBalance: bankBalance
+			//nccuBalance: nccuBalance
 		})
 		log('更新帳戶資料')
 
 		$('#ethBalance').text('以太帳戶餘額 (wei): ' + ethBalance)
 		$('#bankBalance').text('銀行合約餘額 (wei): ' + bankBalance)
+		//$('#nccuBalance').text('NCCU Coin: ' + nccuBalance)
 	})
 })
 
@@ -150,7 +170,7 @@ mint.on('click', function () {
 	waitTransactionStatus()
 	// 轉帳
 	// transfer 本身有兩個 args，而 { from: from, gas: ... } 為 tx object
-	bank.methods.coin(mintAccount.val(), parseInt(mintNumber.val(), 10)).send({
+	bank.methods.mint(mintAccount.val(), parseInt(mintNumber.val(), 10)).send({
 		from: whoami.val(),
 		gas: 4600000
 	}).on('receipt', function (receipt) {

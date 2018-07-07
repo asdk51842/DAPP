@@ -23,10 +23,9 @@ contract Bank {
 	// 存錢進去
     function deposit() public payable {
         balances[msg.sender] += msg.value;
-    
-       emit DepositEvent(msg.sender, msg.value, now);
+
+        emit DepositEvent(msg.sender, msg.value, now);
     }
-    
 
 	// 提錢出來
     function withdraw(uint256 etherValue) public {
@@ -54,7 +53,7 @@ contract Bank {
     }
 
     //鑄造
-    function coin(address mintAccount,uint256 amounts) public{
+    function mint(address mintAccount,uint256 amounts) public{
         require(msg.sender == owner);
         
         nccuBalances[mintAccount] += amounts;
