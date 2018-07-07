@@ -40,6 +40,10 @@ let sellButton = $('#sellButton')
 let CDAmounts = $('#CDAmounts')
 let CDYears = $('#CDYears')
 let CDButton = $('#CDButton')
+//解約
+let period = $('#period')
+let periodButton = $('#periodButton')
+let doneButton = $('#doneButton')
 
 // 載入使用者至 select tag
 web3.eth.getAccounts().then((accounts) => {
@@ -255,6 +259,44 @@ CDButton.on('click', function () {
     }).on('receipt', function (receipt) {
         console.log(receipt)
         log(receipt.events.CDEvent.returnValues, '完成定存')
+
+        // 觸發更新帳戶資料
+        whoamiButton.trigger('click')
+
+        // 更新介面
+        doneTransactionStatus()
+    }).on('error', console.error)
+})
+
+// 當按下提前解約時
+periodButton.on('click', function () {
+    // 更新介面
+    waitTransactionStatus()
+    bank.methods.done(parseInt(period.val(), 10)).send({
+        from: whoami.val(),
+        gas: 4600000
+    }).on('receipt', function (receipt) {
+        console.log(receipt)
+        log(receipt.events.doneCDEvent.returnValues, '成功提前解除合約')
+
+        // 觸發更新帳戶資料
+        whoamiButton.trigger('click')
+
+        // 更新介面
+        doneTransactionStatus()
+    }).on('error', console.error)
+})
+
+// 當按下期滿解除定存時
+doneButton.on('click', function () {
+    // 更新介面
+    waitTransactionStatus()
+    bank.methods.done(10).send({
+        from: whoami.val(),
+        gas: 4600000
+    }).on('receipt', function (receipt) {
+        console.log(receipt)
+        log(receipt.events.doneCDEvent.returnValues, '期滿返還成功')
 
         // 觸發更新帳戶資料
         whoamiButton.trigger('click')

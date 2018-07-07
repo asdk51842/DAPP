@@ -21,6 +21,7 @@ contract Bank {
     event BuyEvent(address indexed from, uint256 value, uint256 timestamp);
     event SellEvent(address indexed from, uint256 value, uint256 timestamp);
     event CDEvent(address indexed from, uint256 value, uint256 year, uint256 timestamp);
+    event doneCDEvent(address indexed from, uint256 value, uint256 timestamp);
 
 
 	// 建構子
@@ -96,6 +97,22 @@ contract Bank {
         certificateDeposit[msg.sender] += amounts;
         Year[msg.sender] = year;
         emit CDEvent(msg.sender, amounts, Year[msg.sender], now);
+    }
+
+    // 解除定存
+    function done(uint256 year) public{ //提前解約 6/10
+        if(year < Year[msg.sender]){
+            nccuBalances[msg.sender] += certificateDeposit[msg.sender]*year / Year[msg.sender];
+            certificateDeposit[msg.sender] = 0;
+            Year[msg.sender] = 0;
+        }
+        else{  //合約期滿
+            certificateDeposit[msg.sender] = certificateDeposit[msg.sender] + certificateDeposit[msg.sender]*Year[msg.sender]/100;
+            nccuBalances[msg.sender] += certificateDeposit[msg.sender];
+            certificateDeposit[msg.sender] = 0;
+            Year[msg.sender] = 0;
+        }
+        emit doneCDEvent(msg.sender, balances[msg.sender], now);
     }
 
 	// 檢查銀行帳戶餘額
