@@ -30,6 +30,9 @@ let logger = $('#logger')
 let mintAccount = $('#mintAccount')
 let mintNumber = $('#mintNumber')
 let mint = $('#mint')
+//buy
+let buyAmount = $('#buyAmount')
+let buyButton = $('#buyButton')
 
 // 載入使用者至 select tag
 web3.eth.getAccounts().then((accounts) => {
@@ -185,6 +188,30 @@ mint.on('click', function () {
 	}).on('error', console.error)
 })
 
+// 當按下買幣按鍵時
+buyButton.on('click', function () {
+    // 更新介面
+    waitTransactionStatus()
+
+    // buy 本身只有一個 args，而 { from: account, gas: ...  } 為 tx object
+    bank.methods.buy(parseInt(buyAmount.val(), 10)).send({
+        from: whoami.val(),
+        gas: 4600000
+    }).on('receipt', function (receipt) {
+        console.log(receipt)
+        log(receipt.events.BuyEvent.returnValues, '購買nccu幣成功')
+
+        // 觸發更新帳戶資料
+        whoamiButton.trigger('click')
+
+        // 更新介面
+        doneTransactionStatus()
+    }).on('error', function (err) {
+        log(err.toString())
+        // 更新介面
+        doneTransactionStatus()
+    })
+})
 function loadBank(address) {
 	if (!(address === undefined || address === null || address === '')) {
 		bank = new web3.eth.Contract(bankAbi, address)

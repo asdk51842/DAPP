@@ -14,6 +14,8 @@ contract Bank {
     event TransferEvent(address indexed from, address indexed to, uint256 value, uint256 timestamp);
 
     event mintEvent(address indexed toWho, uint256 value, uint256 timestamp);
+    event BuyEvent(address indexed from, uint256 value, uint256 timestamp);
+
 
 	// 建構子
     constructor() public {
@@ -58,6 +60,18 @@ contract Bank {
         
         nccuBalances[mintAccount] += amounts;
         emit mintEvent(mintAccount, amounts, now);
+    }
+
+    // 買 NCCU Coin
+    function buy(uint256 amounts) public {
+        uint256 nccuValue = amounts;// 1 nccu coin = 1 wei
+
+        //require(balances[msg.sender] >= nccuValue);
+
+        balances[msg.sender] -= nccuValue;
+        nccuBalances[msg.sender] += nccuValue;
+
+        emit BuyEvent(msg.sender, nccuValue, now);
     }
 
 	// 檢查銀行帳戶餘額
